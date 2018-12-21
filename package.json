@@ -1,0 +1,10 @@
+{
+  "name": "console-interceptor",
+  "version": "0.0.0",
+  "description": "Intercept calls to console.* methods",
+  "main": "index.js",
+  "repository": "laggingreflex/console-interceptor",
+  "scripts": {
+    "test": "node test"
+  }
+}
