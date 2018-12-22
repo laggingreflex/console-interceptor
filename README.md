@@ -15,16 +15,19 @@ npm i console-interceptor
 const disable = require('console-interceptor')(handler, {onError})
 ```
 ```js
-function handler (method, arguments) {
+function handler (method, arguments, { swallow }) {
 
   // where `method` = original console[method] used, log|error|warn|...
   // and `arguments` = original arguments passed to console[method](...arguments)
 
   // You can control what will eventually get logged in any of the following ways:
 
-  // do nothing, let original console method/arguments be called as-is
+  // let original console method/arguments be called as-is
   return
   // => console[method](...arguments)
+
+  // log nothing
+  return swallow
 
   // Return a string, or {arguments: 'string'}, or a Promise, or set this.arguments
   // to log that string

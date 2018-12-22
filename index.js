@@ -10,6 +10,8 @@ const disable = () => { global.console = console };
  * @callback handler Handle what to do with every `console[method](...argument)` call
  * @param {string} method `console[**method**]` Method used on console
  * @param {array} arguments `console[method](...**arguments**)` Message arguments passed to console
+ * @param {object} extra
+ * @param {symbol} extra.swallow Return this to swallow this console message
  */
 /**
  * @callback onError Called when the `handler` or the lib itself throws an error
@@ -54,6 +56,7 @@ const enable = (handler, opts = {}) => {
 
   const patched = (method) => (...arguments) => {
     const handlerThis = { method, arguments, disable };
+    const handlerExtra = { disable, swallow: Symbol('swallow') }
     const handleError = (error) => onError.call({ method, arguments }, new CIError(error.message), { method, arguments });
     const handleReturnValue = (returnValue) => {
       const { method, arguments } = handlerThis;
@@ -61,12 +64,14 @@ const enable = (handler, opts = {}) => {
         return console[returnValue.method || method](...arrify(returnValue.arguments || arguments));
       } else if (returnValue !== undefined) {
         return console[method](...arrify(returnValue));
+      } else if (returnValue === handlerExtra.swallow) {
+        return;
       } else {
         return console[method](...arrify(arguments));
       }
     }
     try {
-      const returnValue = handler.call(handlerThis, method, arguments);
+      const returnValue = handler.call(handlerThis, method, arguments, handlerExtra);
       if (returnValue && returnValue.then) {
         returnValue.then(handleReturnValue).catch(handleError);
       } else {
