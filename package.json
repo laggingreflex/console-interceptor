@@ -1,6 +1,6 @@
 {
   "name": "console-interceptor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Intercept calls to console.* methods",
   "main": "index.js",
   "repository": "laggingreflex/console-interceptor",
