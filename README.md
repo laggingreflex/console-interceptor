@@ -82,3 +82,8 @@ function onError (error, {
   onError()
 }
 ```
+
+## Related
+
+- [console-source](//github.com/laggingreflex/console-source)
+- [console-tee](//github.com/laggingreflex/console-tee)
