@@ -86,18 +86,37 @@ const enable = (handler, opts = {}) => {
             ...arrify(returnValue.arguments || arguments),
           );
         } else if (returnValue !== undefined) {
-          return console[method](...arrify(returnValue));
+          return () => console[method](...arrify(returnValue));
         } else {
-          return console[method](...arrify(arguments));
+          return () => console[method](...arrify(arguments));
         }
       };
       try {
+        let final;
         for (const handler of handlers) {
           const returnValue = handler.call(handlerThis, method, arguments, handlerExtra);
           if (returnValue && returnValue.then) {
             returnValue.then(handleReturnValue).catch(handleError);
           } else {
-            handleReturnValue(returnValue);
+            final = handleReturnValue(returnValue);
+            if (final?.then) {
+              final = final.then(handleReturnValue).catch(handleError);
+            }
+          }
+        }
+        if (final) {
+          if (final?.then) {
+            final.then((final) => {
+              if (typeof final === "function") {
+                return final();
+              } else {
+                console[method](...arrify(final));
+              }
+            });
+          } else if (typeof final === "function") {
+            return final();
+          } else {
+            console[method](...arrify(final));
           }
         }
       } catch (error) {
